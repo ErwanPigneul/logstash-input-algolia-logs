@@ -23,7 +23,7 @@ class LogStash::Inputs::Algolialogs < LogStash::Inputs::Base
   config :length , :validate => :number, :default => 1000
 
   # The type of logs to retrieve.
-  config :type , ::validate => [ "query", "build", "error"]
+#  config :type  , :validate => [ "query", "build", "error"]
 
   # Set how frequently messages should be sent.
   #
@@ -32,7 +32,7 @@ class LogStash::Inputs::Algolialogs < LogStash::Inputs::Base
 
   public
   def register
-    require algoliasearch
+    require "algoliasearch"
 
     Algolia.init :application_id => @application_id,
                   :api_key        => @api_key
@@ -42,9 +42,9 @@ class LogStash::Inputs::Algolialogs < LogStash::Inputs::Base
   end # def register
 
   def run(queue)
-    Stud.interval(@interval) do
-      logs = Algolia.get_logs(0, @length, false, defined? @type ? @type)
-      for log in logs
+    Stud.interval(1000) do
+      logs = Algolia.get_logs(0, @length, true)
+      for log in logs["logs"]
         event = LogStash::Event.new(log)
         decorate(event)
         queue << event
