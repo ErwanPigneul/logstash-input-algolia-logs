@@ -22,9 +22,6 @@ class LogStash::Inputs::Algolialogs < LogStash::Inputs::Base
   # The size of logs to retrieve.
   config :length , :validate => :number, :default => 1000
 
-  # The type of logs to retrieve.
-#  config :type  , :validate => [ "query", "build", "error"]
-
   # Set how frequently messages should be sent.
   #
   # The default, `1`, means send a message every second.
@@ -37,12 +34,10 @@ class LogStash::Inputs::Algolialogs < LogStash::Inputs::Base
     Algolia.init :application_id => @application_id,
                   :api_key        => @api_key
 
-
-
   end # def register
 
   def run(queue)
-    Stud.interval(1000) do
+    Stud.interval(@interval) do
       logs = Algolia.get_logs(0, @length, true)
       for log in logs["logs"]
         event = LogStash::Event.new(log)
